@@ -1,0 +1,60 @@
+--
+- hosts: gns3_router
+  connection: network_cli
+  become: true
+  gather_facts: no
+  tasks:
+
+  - name: Change the hostname of the router
+    ios_config:
+      lines:
+        - hostname R1_Natiola
+    become: yes
+    become_method: enable
+
+  - name: Service password encryption
+    ios_config:
+      lines:
+        - service password-encryption
+    become: yes
+    become_method: enable
+
+  - name: Banner MOTD
+    ios_banner:
+      banner: login
+      text: |
+        AUTHORIZED USER ONLY!
+    become: yes
+    become_method: enable
+
+  - name: Line Console 0
+    ios_config:
+      lines:
+        - password cisco
+        - login
+      parents: line console 0
+    become: yes
+    become_method: enable
+
+  - name: Enable Secret Password
+    ios_config:
+      lines:
+        - enable secret class
+    become: yes
+    become_method: enable
+
+  - name: Ip Add on Int g0/1
+    ios_config:
+      lines:
+        - ip address 10.1.1.2 255.255.255.0
+        - no shutdown
+      parents: interface g0/1
+    become: yes
+    become_method: enable
+
+  - name: Save configuration on R1
+    ios_config:
+      lines:
+        - do write memory
+    become: yes
+    become_method: enable
